@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Artecnología</title>
+  <meta name="description" content="Artecnología es una plataforma educativa donde puedes programar con bloques, crear juegos, historias y aprender tecnología de manera divertida." />
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet"/>
+  <!-- Firebase Auth SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Comic Neue', cursive, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
+    }
+    header {
+            background-color: #0288d1;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+            position: relative;
+            z-index: 100;
+        }
+
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    .logo img {
+      height: 80px;
+      margin-right: 80px;
+    }
+    .logo span {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+        nav a {
+            margin-left: 22px;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+    nav a:hover {
+            color: #ffd600;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        nav a.active {
+            color: #ffd600;
+            background: rgba(255, 214, 0, 0.2);
+        }
+
+    .hero {
+      padding: 90px 20px 70px;
+      text-align: center;
+      background: radial-gradient(circle at center, #0288d1, #01579b);
+      color: white;
+    }
+    .hero h1 {
+      font-size: 64px;
+      font-weight: 900;
+      margin-bottom: 24px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    }
+    .hero p {
+      font-size: 26px;
+      max-width: 720px;
+      margin: 0 auto 40px;
+      font-weight: 600;
+    }
+    .button {
+      background: #ffd600;
+      border: none;
+      padding: 18px 40px;
+      font-size: 24px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(255, 214, 0, 0.6);
+      transition: background 0.3s ease, transform 0.25s ease;
+    }
+    .button:hover {
+      background: #ffca28;
+      transform: scale(1.05);
+    }
+    .learn-section {
+      padding: 60px 40px;
+      text-align: center;
+    }
+    .learn-section h2 {
+      font-size: 40px;
+      margin-bottom: 36px;
+      color: #0288d1;
+      font-weight: 700;
+      text-shadow: 0 0 4px #0288d1aa;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 34px;
+      padding: 0 10px;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+      transition: transform 0.35s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 18px 35px rgba(0,0,0,0.15);
+    }
+    .card img {
+      width: 100%;
+      max-width: 100px;
+      height: auto;
+      border-radius: 15px;
+      margin-bottom: 22px;
+      filter: drop-shadow(1px 1px 2px #555);
+    }
+    .card h3 {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: #01579b;
+      font-weight: 800;
+    }
+    .card p {
+      font-size: 17px;
+      color: #444;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    #blocklyArea {
+      height: 650px;
+      width: 100%;
+      position: relative;
+      margin-top: 60px;
+      background: #e1f5fe;
+      border-top: 3px solid #0288d1;
+      border-radius: 12px 12px 0 0;
+      box-shadow: inset 0 4px 6px #b3e5fc;
+    }
+    #blocklyDiv {
+      position: absolute;
+      top: 0; 
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .btn-container {
+      margin: 24px auto 60px;
+      text-align: center;
+    }
+    button.run-button, 
+    button.start-button, 
+    button.stop-button {
+      background-color: #0288d1;
+      color: white;
+      border: none;
+      font-size: 20px;
+      padding: 14px 36px;
+      margin: 0 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 6px 12px rgba(2,136,209,0.6);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button.run-button:hover, 
+    button.start-button:hover, 
+    button.stop-button:hover {
+      background-color: #01579b;
+      transform: scale(1.1);
+    }
+    .canvas-container {
+      text-align: center;
+      margin: 30px 0;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .canvas-container h3 {
+      color: #0288d1;
+      font-size: 24px;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    #turtleCanvas {
+      border: 2px solid #0288d1;
+      border-radius: 10px;
+      background: white;
+    }
+    footer {
+      background: #0288d1;
+      color: white;
+      font-size: 16px;
+      padding: 22px 10px;
+      text-align: center;
+      font-weight: 600;
+      box-shadow: 0 -3px 15px rgba(0,0,0,0.1);
+    }
+    footer a {
+      color: #ffd600;
+      text-decoration: none;
+      font-weight: 700;
+      margin: 0 8px;
+      transition: color 0.3s ease;
+    }
+    footer a:hover {
+      color: white;
+    }
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 36px;
+      }
+      .hero p {
+        font-size: 18px;
+      }
+      header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+      }
+      nav a {
+        margin: 0;
+      }
+      #blocklyArea {
+        height: 400px;
+      }
+      #turtleCanvas {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+      }
+      .btn-container {
+        padding: 0 20px;
+      }
+      button.run-button, 
+      button.start-button, 
+      button.stop-button {
+        font-size: 16px;
+        padding: 12px 24px;
+        margin: 5px;
+      }
+    }
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 28px;
+      }
+      .hero p {
+        font-size: 16px;
+      }
+      .logo span {
+        font-size: 24px;
+      }
+      .learn-section h2 {
+        font-size: 32px;
+      }
+      .cards {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+  </style>
+  <script>
+    // Inicialización y protección con Firebase Auth
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtUed7rRqISNCcksKOKvq_V0UHiV2JyYM",
+      authDomain: "artecnologia-3d705.firebaseapp.com",
+      projectId: "artecnologia-3d705",
+      storageBucket: "artecnologia-3d705.appspot.com",
+      messagingSenderId: "80571309588",
+      appId: "1:80571309588:web:05b7a9972aa91e1f671101",
+      measurementId: "G-S343D54DHB"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    auth.onAuthStateChanged(function(user) {
+      if (!user) {
+        window.location.href = "../index.html";
+      }
+    });
+    function cerrarSesion() {
+      auth.signOut().then(() => {
+        window.location.href = "../index.html";
+      });
+    }
+  </script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <!-- Ajusta la ruta de acuerdo a la nueva ubicación -->
+      <img src="img/logoso2.png" alt="Logo" style="height:40px; margin-right:10px;">
+      <img src="img/escudo.jpeg" alt="Escudo" style="height:40px; border-radius:50%; margin-right:10px;">
+      <span>Artecnología</span>
+  </div>
+    <nav class="nav">
+      <a href="https://makecode.microbit.org/">Crear</a>
+      <a href="../CODE ARTC/asistente de codigos ARTC.html">Explorar</a>
+      <a href="../paginas otras/fuera de servicio.HTML">Ideas</a>
+      <a href="../paginas otras/acerca de nosotros.html">Acerca de</a>
+      <a href="#" onclick="cerrarSesion()">Cerrar Sesión</a>
+      
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Imagina, Programa, Comparte</h1>  
+    <p>Artecnología te permite programar tus propias historias, juegos y animaciones mientras desarrollas tu creatividad y pensamiento lógico.</p>
+    
+  </section>
+
+  <section class="learn-section">
+    <h2>Comienza a Aprender</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="img/3861489.png" alt="Anima tu nombre" />
+        <h3>Anima tu Nombre</h3>
+        <p>Haz que las letras de tu nombre se muevan, giren y cobren vida usando bloques.</p>
+      </div>
+      <div class="card">
+        <img src="img/games.png" alt="Juego de persecución" />
+        <h3>Crea un Juego</h3>
+        <p>Diseña tu propio juego interactivo programando sin necesidad de código.</p>
+      </div>
+      <div class="card">
+        <img src="img/123.png" alt="Historias" />
+        <h3>Crea una Historia</h3>
+        <p>Cuenta una historia divertida con personajes, voces y escenarios animados.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <footer>
+    Artecnología es una plataforma educativa inspirada en Scratch.<br />
+    Esta es una réplica con fines educativos y creativos.<br />
+    <a href="#contacto">Contacto</a> | <a href="#privacidad">Política de privacidad</a> | <a href="#creditos">Créditos</a>
+  </footer>
+
+  <!-- Definición de bloques Blockly -->
+  <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+    <!-- Aquí insertas tus bloques Blockly según tu necesidad -->
+  </xml>
+
+  <!-- Scripts de funcionalidad -->
+  <script src="SCRIPT.js"></script>
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="https://unpkg.com/blockly/msg/es.js"></script>
+  <script>
+    function scrollToBlockly() {
+      document.getElementById('blocklyArea').scrollIntoView({behavior: "smooth"});
+    }
+    // Añade funciones de Blockly y canvas según necesidad
+  </script>
+
+ 
+</body>
+</html>
